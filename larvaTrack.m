@@ -479,7 +479,7 @@ function process_Callback(hObject, eventdata, handles)
       % previous/posterior frames.
       for i=2:3
         m=movmean(data(:,i),10,'omitnan'); % consider 5 frames
-        ok=ok&(abs(data(:,i)-m)<7); % do not allow changes of more than 7 pixels;
+        ok=ok&(abs(data(:,i)-m)<10); % do not allow changes of more than 7 pixels;
       end
       for i=10:11
         m=movmean(data(:,i),5,'omitnan'); % consider 5 frames
@@ -492,6 +492,7 @@ function process_Callback(hObject, eventdata, handles)
       % Update the number of
       ne=ng+ne;
       
+      fprintf('  Saving frames and video\n');
       % Save the tagged images and the output video
       vname=fullfile(rfolder,[idname '_video.avi']);
       vOut=VideoWriter(vname);
