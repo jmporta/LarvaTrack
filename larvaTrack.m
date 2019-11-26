@@ -104,6 +104,12 @@ function select_Callback(hObject, eventdata, handles)
     errordlg('Please, select an input video','Error');
   else
     [xi,yi] = getline(handles.image,'closed');
+    n=size(xi,1);
+    [sy,sx]=size(handles.frame);
+    xi=max(xi,ones(n,1));
+    xi=min(xi,ones(n,1)*sx);
+    yi=max(yi,ones(n,1));
+    yi=min(yi,ones(n,1)*sy);
     if ~isempty(xi)
       ndx=find(cellfun(@isempty,handles.ROIs));
       if isempty(ndx)
@@ -117,7 +123,7 @@ function select_Callback(hObject, eventdata, handles)
   end
   
   handles=connectAll(handles);
-  guidata(hObject, handles);
+  guidata(hObjecthandles);
 
 end
 
@@ -249,9 +255,9 @@ function snapshots_Callback(hObject, eventdata, handles)
             while hasFrame(handles.v)
                 frame=readFrame(handles.v);
                 if clean
-                    cleanFrame=substractBackground(frame,back);
+                  cleanFrame=substractBackground(frame,back);
                 else
-                    cleanFrame=frame;
+                  cleanFrame=frame;
                 end
                 c=mode(cleanFrame(pt)); % mode color in the patch
                 cleanFrame(bg)=c; % remove background
@@ -435,7 +441,7 @@ function process_Callback(hObject, eventdata, handles)
       error=true; % set so that the first frame is computed from scratch
       
       ok=false(nf,1);
-      data=zeros(nf,12);
+      data=nan(nf,12);
 
       for f=1:nf
         file=files(f).name;
@@ -465,7 +471,6 @@ function process_Callback(hObject, eventdata, handles)
             data(f,:)=[ns p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y alpha beta gamma];
           else
             % inform that we had troubles processing this frame
-            data(f,:)=nan;
             fprintf('%s ',file);
             ne=ne+1;
           end
@@ -477,14 +482,14 @@ function process_Callback(hObject, eventdata, handles)
       % Here we can further filter the computed data (global consistency)
       % For instance, we discart results not similar to
       % previous/posterior frames.
-      for i=2:3
+      for i=[2,3,8,9]
         m=movmean(data(:,i),10,'omitnan'); % consider 5 frames
         ok=ok&(abs(data(:,i)-m)<10); % do not allow changes of more than 7 pixels;
       end
-      for i=10:11
-        m=movmean(data(:,i),5,'omitnan'); % consider 5 frames
-        ok=ok&(abs(data(:,i)-m)<10); % do not allow changes of more than 10 degrees;
-      end
+%       for i=10:11
+%         m=movmean(data(:,i),5,'omitnan'); % consider 5 frames
+%         ok=ok&(abs(data(:,i)-m)<10); % do not allow changes of more than 10 degrees;
+%       end
       
       ng=sum(~ok)-ne;
       fprintf('\n  Number of frames removed at global check: %u\n',ng);
