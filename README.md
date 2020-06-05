@@ -1,3 +1,3 @@
 # LarvaTrack
 
-Software to track cebra fish larvas.
+Software to track zebra fish larvae.
